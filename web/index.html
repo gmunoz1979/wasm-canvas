@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WASM - Canvas</title>
+    <style>
+      html, body {
+        align-items: center;
+        background-color: black;
+        display: flex;
+        height: 100vh;
+        justify-content: center;
+        margin: 0;
+        width: 100%;
+      }
+
+      canvas {
+        background-color: white;
+      }
+    </style>
+  </head>
+  <body>
+
+    <canvas id="canvas" width="300" height="300"></canvas>
+
+    <script>
+      async function load_wasm(imports) {
+        const response = await fetch("main.wasm");
+        const bytes    = await response.arrayBuffer();
+        const results  = await new WebAssembly.instantiate(bytes, imports);
+
+        return results.instance;
+      }
+
+      /**
+       * function autorun
+       */
+      (
+        function() {
+          const canvas = document.getElementById("canvas");
+          const ctx    = canvas.getContext("2d");
+
+          const width  = canvas.clientWidth;
+          const height = canvas.clientHeight;
+
+
+          const exports = {};
+          let id = 0;
+
+          const fn = timestamp => {
+            exports.event_loop(id, timestamp);
+          }
+
+          const imports = {
+            env: {
+              memoryBase: 0,
+              tableBase:  0,
+              memory:     new WebAssembly.Memory({ initial: 256 }),
+              table:      new WebAssembly.Table({ initial:4, element: 'anyfunc' }),
+
+              // Functions Math
+              random:     Math.random,
+              floor:      Math.floor,
+
+              // Functions canvas
+              fillRect:   ctx.fillRect.bind(ctx),
+              clearRect:  ctx.clearRect.bind(ctx),
+
+              // Functions app
+              requestAnimationFrame: _id => { 
+                id = _id;
+                requestAnimationFrame(fn);
+              },
+
+              console: value => {
+                console.debug(`Points: ${value}`);
+              }
+            }
+          }
+
+          load_wasm(imports).then(instance => {
+            const module = instance.exports;
+
+            exports.run        = module.run;
+            exports.event_loop = module.event_loop;
+
+            exports.run(width, height);
+          });
+        }
+      )();
+    </script>
+  </body>
+</html>

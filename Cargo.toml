@@ -1,0 +1,6 @@
+[package]
+name = "wasm-canvas"
+version = "0.1.0"
+authors = ["Gerard Muñoz <gmunoz1979@gmail.com>"]
+
+[dependencies]
