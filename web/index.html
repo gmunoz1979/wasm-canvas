@@ -27,7 +27,7 @@
       async function load_wasm(imports) {
         const response = await fetch("main.wasm");
         const bytes    = await response.arrayBuffer();
-        const results  = await new WebAssembly.instantiate(bytes, imports);
+        const results  = await WebAssembly.instantiate(bytes, imports);
 
         return results.instance;
       }
