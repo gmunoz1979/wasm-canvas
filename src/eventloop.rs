@@ -41,4 +41,8 @@ impl EventLoop {
             requestAnimationFrame(self.id);
         }
     }
+
+    pub fn get_timestamp(&self) -> u32 {
+        self.timestamp
+    }
 }

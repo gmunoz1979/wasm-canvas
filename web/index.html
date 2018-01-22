@@ -52,18 +52,22 @@
 
           const imports = {
             env: {
-              memoryBase: 0,
-              tableBase:  0,
-              memory:     new WebAssembly.Memory({ initial: 256 }),
-              table:      new WebAssembly.Table({ initial:4, element: 'anyfunc' }),
+              memoryBase:   0,
+              tableBase:    0,
+              memory:       new WebAssembly.Memory({ initial: 256 }),
+              table:        new WebAssembly.Table({ initial:4, element: 'anyfunc' }),
 
               // Functions Math
-              random:     Math.random,
-              floor:      Math.floor,
+              random:       Math.random,
+              floor:        Math.floor,
 
               // Functions canvas
-              fillRect:   ctx.fillRect.bind(ctx),
-              clearRect:  ctx.clearRect.bind(ctx),
+              setFillStyle: (speed, remove) => { 
+                ctx.fillStyle = remove === 0 ? `rgba(  0, 255, 0, ${speed}`
+                                             : `rgba(255,   0, 0, ${speed}`;
+              },
+              fillRect:     ctx.fillRect.bind(ctx),
+              clearRect:    ctx.clearRect.bind(ctx),
 
               // Functions app
               requestAnimationFrame: _id => { 
