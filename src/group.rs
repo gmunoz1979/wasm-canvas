@@ -4,27 +4,20 @@ use point::Point2D;
 
 #[derive(Debug)]
 pub struct Group {
-    points:    HashMap<i32, Point2D>,
-    timestamp: u32,
-    index:     i32
+    points:    HashMap<u32, Point2D>,
+    timestamp: u32
 }
 
 impl Group {
     pub fn new() -> Group {
-        Group { points: HashMap::new(), timestamp: 0, index: -1 }
+        Group { points: HashMap::new(), timestamp: 0 }
     }
 
-    pub fn add(&mut self, x: u32, y: f32, size: u8, speed: f32) {
-        let mut point = Point2D::new(x, y, size, speed);
-
-        self.index += 1;
-
-        point.set_index(self.index);
-
-        self.points.insert(self.index, point);
+    pub fn add(&mut self, key: u32, point: Point2D) {
+        self.points.insert(key, point);
     }
 
-    pub fn iter_mut(&mut self) -> ValuesMut<i32, Point2D> {
+    pub fn iter_mut(&mut self) -> ValuesMut<u32, Point2D> {
         self.points.values_mut()
     }
 
@@ -32,14 +25,14 @@ impl Group {
         self.timestamp = timestamp;
     }
 
-    fn get_index(&self) -> Vec<i32> {
-        let mut index:Vec<i32> = Vec::new();
+    fn get_index(&self) -> Vec<u32> {
+        let mut index:Vec<u32> = Vec::new();
 
-        for (k, v) in &self.points {
+        self.points.iter().for_each(|(_, v)| {
             if v.is_remove() && (self.timestamp - v.get_timestamp() > 1000) {
-                index.push(v.get_index());
+                index.push(*v.get_index());
             }
-        }
+        });
 
         index
     }

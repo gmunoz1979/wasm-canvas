@@ -1,22 +1,22 @@
 extern "C" {
-    fn clearRect(x: u32, y: u32, width: u8, height: u8);
-    fn fillRect(x: u32, y: u32, width: u8, height: u8);
+    fn clearRect(x: u16, y: u16, width: u8, height: u8);
+    fn fillRect(x: u16, y: u16, width: u8, height: u8);
     fn setFillStyle(speed: f32, remove: bool);
 }
 
 #[derive(Debug)]
 pub struct Point2D {
-    x:         u32,
+    x:         u16,
     y:         f32,
     size:      u8,
     speed:     f32,
     remove:    bool,
     timestamp: u32,
-    index:     i32
+    index:     u32
 }
 
 impl Point2D {
-    pub fn new(x: u32, y: f32, size: u8, speed: f32) -> Point2D {
+    pub fn new(x: u16, y: f32, size: u8, speed: f32) -> Point2D {
         Point2D { 
             x:         x, 
             y:         y, 
@@ -31,13 +31,13 @@ impl Point2D {
     pub fn draw(&self) {
         unsafe {
             setFillStyle(self.speed, self.remove);
-            fillRect(self.x, self.y as u32, self.size, self.size);
+            fillRect(self.x , self.y as u16, self.size, self.size);
         }
     }
 
     pub fn clear(&self) {
       unsafe {
-          clearRect(self.x, self.y as u32, self.size, self.size);
+          clearRect(self.x, self.y as u16, self.size, self.size);
       }
     }
 
@@ -66,11 +66,11 @@ impl Point2D {
         self.remove
     }
 
-    pub fn set_index(&mut self, index: i32) {
+    pub fn set_index(&mut self, index: u32) {
         self.index = index;
     }
 
-    pub fn get_index(&self) -> i32 {
-        self.index
+    pub fn get_index(&self) -> &u32 {
+        &self.index
     }
 }

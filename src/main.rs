@@ -11,40 +11,45 @@ fn main() { }
 
 extern "C" {
     fn random() -> f32;
-    fn floor(v: f32) -> u32;
-    fn console(v: usize);
+    fn floor(v: f32) -> u16;
+    //fn console(v: usize);
 }
 
 #[no_mangle]
-pub fn run(width: u32, height: u32) {
-
+pub fn run(width: u16, height: u16) {
+    let mut key: u32 = 0;
+    let size: u8 = 3;
     let mut group = Box::new(Group::new());
 
     let event_loop: EventLoop = EventLoop::new(Box::new(move |event_loop| {
         let group = group.as_mut();
 
         unsafe {
-            for _ in 0..floor(random() * 10.0) {
-                let x = floor(random() * (width as f32));
-                let y = 0.0;
-                let speed= random() + 0.1;
+            for _ in 0..floor(random() * 5.0) {
+                let x: u16 = floor(random() * (width as f32));
+                let y: f32 = 0.0;
+                let speed: f32 = random() + 0.1;
 
-                group.add(x, y, 3, speed);
+                let mut point = Point2D::new(x, y, size, speed);
+                point.set_index(key.clone());
+                
+                group.add(key.clone(), point);
+
+                key += 1;
             }
         }
 
         group.set_timestamp(event_loop.get_timestamp());
 
-        for point in group.iter_mut() {
-            
+        group.iter_mut().for_each(|point: &mut Point2D| {
             point.clear();
             point.move_y();
             point.draw();
 
-            if point.get_y() as u32 >= (height - 2) {
+            if point.get_y() as u16 >= (height - 2) {
                 point.remove_next_iter(event_loop.get_timestamp());
             }
-        }
+        });
 
         group.evaluate_points_remove();
 
