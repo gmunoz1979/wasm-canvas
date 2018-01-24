@@ -1,12 +1,6 @@
-extern "C" {
-    fn clearRect(x: u16, y: u16, width: u8, height: u8);
-    fn fillRect(x: u16, y: u16, width: u8, height: u8);
-    fn setFillStyle(speed: f32, remove: bool);
-}
-
 #[derive(Debug)]
 pub struct Point2D {
-    x:         u16,
+    x:         u32,
     y:         f32,
     size:      u8,
     speed:     f32,
@@ -16,7 +10,7 @@ pub struct Point2D {
 }
 
 impl Point2D {
-    pub fn new(x: u16, y: f32, size: u8, speed: f32) -> Point2D {
+    pub fn new(x: u32, y: f32, size: u8, speed: f32) -> Point2D {
         Point2D { 
             x:         x, 
             y:         y, 
@@ -28,27 +22,26 @@ impl Point2D {
         }
     }
 
-    pub fn draw(&self) {
-        unsafe {
-            setFillStyle(self.speed, self.remove);
-            fillRect(self.x , self.y as u16, self.size, self.size);
-        }
-    }
-
-    pub fn clear(&self) {
-      unsafe {
-          clearRect(self.x, self.y as u16, self.size, self.size);
-      }
-    }
-
     pub fn move_y(&mut self) {
         if !self.is_remove() {
             self.y += self.speed;
         }
     }
 
+    pub fn get_x(&self) -> u32 {
+      self.x
+    }
+
     pub fn get_y(&self) -> u32 {
       self.y as u32
+    }
+
+    pub fn get_speed(&self) -> f32 {
+        self.speed
+    }
+
+    pub fn get_size(&self) -> u8 {
+        self.size
     }
 
     pub fn remove_next_iter(&mut self, timestamp: u32) {

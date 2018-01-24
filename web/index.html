@@ -46,29 +46,41 @@
 
           const exports = {};
           let id = 0;
+          let image;
+          let pointer;
+
+          let progress = 0;
 
           const fn = timestamp => {
-            exports.event_loop(id, timestamp);
+            if (progress === 0) progress = timestamp;
+
+            if (timestamp - progress > 20) {
+              exports.event_loop(id, timestamp);
+              ctx.putImageData(image, 0, 0);
+              progress = timestamp;
+            } else {
+              requestAnimationFrame(fn);
+            }
           }
 
           const imports = {
             env: {
-              memoryBase:   0,
-              tableBase:    0,
-              memory:       new WebAssembly.Memory({ initial: 256, maximum: 1024 }),
-              table:        new WebAssembly.Table({ initial:4, element: 'anyfunc' }),
+              memoryBase: 0,
+              tableBase: 0,
+              memory: new WebAssembly.Memory({ initial: 256, maximum: 1024 }),
+              table: new WebAssembly.Table({ initial:4, element: 'anyfunc' }),
 
               // Functions Math
-              random:       Math.random,
-              floor:        Math.floor,
+              random: Math.random,
+              floor: Math.floor,
 
               // Functions canvas
               setFillStyle: (speed, remove) => { 
                 ctx.fillStyle = remove === 0 ? `rgba(  0, 255, 0, ${speed}`
                                              : `rgba(255,   0, 0, ${speed}`;
               },
-              fillRect:     ctx.fillRect.bind(ctx),
-              clearRect:    ctx.clearRect.bind(ctx),
+              fillRect: ctx.fillRect.bind(ctx),
+              clearRect: ctx.clearRect.bind(ctx),
 
               // Functions app
               requestAnimationFrame: _id => { 
@@ -87,8 +99,16 @@
 
             exports.run        = module.run;
             exports.event_loop = module.event_loop;
+            exports.alloc      = module.alloc;
 
-            exports.run(width, height);
+            let byteSize = width * height * 4;
+            
+            pointer  = module.alloc(byteSize);
+            let usub = new Uint8ClampedArray(module.memory.buffer, pointer, byteSize);
+
+            image = new ImageData(usub, width, height);
+
+            exports.run(pointer, width, height);
           });
         }
       )();

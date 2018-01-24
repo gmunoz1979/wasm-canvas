@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::collections::hash_map::ValuesMut;
+use std::collections::hash_map::{Values, ValuesMut};
 use point::Point2D;
 
 #[derive(Debug)]
@@ -19,6 +19,10 @@ impl Group {
 
     pub fn iter_mut(&mut self) -> ValuesMut<u32, Point2D> {
         self.points.values_mut()
+    }
+
+    pub fn iter(&self) -> Values<u32, Point2D> {
+        self.points.values()
     }
 
     pub fn set_timestamp(&mut self, timestamp: u32) {
